@@ -15,60 +15,42 @@ void MainWindow::startGame()
 {
     mainLayout = new QGridLayout(this);
 
-    lengthKey = new QLabel;
-    lengthKey->setText("Выстота ");
-    mainLayout->addWidget(lengthKey,0,0);
-
-    lengthValue = new QLineEdit;
-    mainLayout->addWidget(lengthValue,0,1);
-
-    widthKey = new QLabel;
-    widthKey->setText("Ширина ");
-    mainLayout->addWidget(widthKey,1,0);
-
-    widthValue = new QLineEdit;
-    mainLayout->addWidget(widthValue,1,1);
-
     timeKey = new QLabel;
-    timeKey->setText("Интервал обновления (сек)");
-    mainLayout->addWidget(timeKey,2,0);
+    timeKey->setText("Интервал обновления (мил-сек)");
+    mainLayout->addWidget(timeKey,1,0);
 
     timeValue = new QLineEdit;
-    mainLayout->addWidget(timeValue,2,1);
+    timeValue->setText("1"); // delet
+    mainLayout->addWidget(timeValue,1,1);
 
     setValue = new QPushButton;
     setValue->setText("Создать");
     connect(setValue,SIGNAL(clicked(bool)),this,SLOT(validityChecking()));
-    mainLayout->addWidget(setValue,3,0,1,2);
+    mainLayout->addWidget(setValue,2,0,1,2);
 }
 
 void MainWindow::validityChecking()
 {
-    bool isOk1(false),isOk2(false),isOk3(false);
+    bool isOk(false);
 
-    int _length_value ( lengthValue->text().toInt(&isOk1));
-    int _width_value (  widthValue->text().toInt(&isOk2) );
-    int _time   ( timeValue->text().toInt(&isOk3));
+    int _time  ( timeValue->text().toInt(&isOk));
 
-    if( (isOk1 && isOk2 && isOk3) && (_length_value > 0 && _width_value > 0 && _time > 0) )
+    if( isOk && _time > 0 )
     {
-        lengthKey->close();
-        lengthValue->close();
-        widthKey->close();
-        widthValue->close();
+
         setValue->close();
         timeKey->close();
         timeValue->close();
+
+        int _length_value = 40;
+        int _width_value = 30;
+
         creater(_length_value, _width_value, _time );
 
     }
     else
     {
-        if(!isOk1 || _length_value < 1)
-            lengthValue->setText("Не корректно");
-        if(!isOk2 || _width_value < 1)
-            widthValue->setText("Не корректнно");
-        if(!isOk3 || _time < 1 );
+        if(!isOk || _time < 1 );
             timeValue->setText("Не корректно");
     }
 
@@ -76,6 +58,8 @@ void MainWindow::validityChecking()
 
 void MainWindow::nextStatus()
 {
+    map->setMap(paint->getMap());
+
     map->buildNextStatus();
 
     if(map->isNotEnd())
@@ -89,6 +73,7 @@ void MainWindow::nextStatus()
         next->close();
         startTimer->close();
         stopTimer->close();
+        draw->close();
         gameOver();
     }
 
@@ -112,47 +97,38 @@ void MainWindow::gameOver()
 
 }
 
+void MainWindow::drawStatus(bool status)
+{
+    paint->setStatusDraw(status);
+}
+
 
 void MainWindow::creater(int _length_value ,int _width_value, int _time  )
 {
 
-
-    // убрать после
-    srand(time(NULL));
-    QVector < QVector < bool > > _map(0);
+    QVector < QVector < Cell > > _map(0);
     for(int i(0); i < _length_value ; i++ )
     {
-        _map.push_back(QVector<bool>(_width_value));
+        _map.push_back(QVector<Cell>(_width_value));
     }
-
-    for(int i(0); i < _map.size(); i++)
-    {
-        for(int j(0); j < _map[i].size(); j++ )
-        {
-            int tmp = rand()%10;
-            if( tmp > 6 )
-                _map[i][j]=true;
-            else
-                _map[i][j]=false;
-        }
-    }
-
-
     timer = new QTimer(this);
-    timer->setInterval( _time * 1000 );
+    timer->setInterval( _time );
     connect(timer,SIGNAL(timeout()),this,SLOT(nextStatus()));
 
 
-    map = new Map;
-    map->setMap(_map);
+
 
     paint = new Paint;
     paint->setMap(_map);
-    mainLayout->addWidget(paint,0,0,1,3);
+    mainLayout->addWidget(paint,0,0,1,4);
+
+    map = new Map;
+
 
     next = new QPushButton;
     next->setText("NEXT");
     connect(next, SIGNAL(clicked(bool)),this,SLOT(nextStatus()));
+    mainLayout->addWidget(next,1,0);
 
     startTimer = new QPushButton;
     startTimer->setText("START");
@@ -164,7 +140,12 @@ void MainWindow::creater(int _length_value ,int _width_value, int _time  )
     connect(stopTimer,SIGNAL(clicked(bool)),timer,SLOT(stop()));
     mainLayout->addWidget(stopTimer,1,2);
 
-    mainLayout->addWidget(next,1,0);
+
+
+    draw = new QRadioButton;
+    draw->setText("DRAW");
+    connect(draw,SIGNAL(toggled(bool)),this,SLOT(drawStatus(bool)));
+    mainLayout->addWidget(draw,1,3);
 
 }
 
@@ -174,10 +155,6 @@ MainWindow::~MainWindow()
     delete      map;
 
     //стартовое окно
-    delete      lengthKey;
-    delete      lengthValue;
-    delete      widthKey;
-    delete      widthValue;
     delete      timeKey;
     delete      timeValue;
     delete      setValue;
@@ -188,6 +165,7 @@ MainWindow::~MainWindow()
     delete      timer;
     delete      startTimer;
     delete      stopTimer;
+    delete      draw;
     delete      mainLayout;
 
 

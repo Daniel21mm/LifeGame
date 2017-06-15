@@ -11,6 +11,8 @@ public:
     ~Cell();
 
     bool            isLife();
+    bool            isVirus();
+    void            setVirus(bool);
     bool            isChangeStatus();
     void            setNextStatus(bool status);
     void            activateNextStatus();
@@ -21,6 +23,7 @@ private:
 
     bool            _is_life;
     bool            _next_status;
+    bool            _is_virus;
 };
 
 #endif // CELL_H

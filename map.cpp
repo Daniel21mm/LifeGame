@@ -16,7 +16,7 @@ Map::Map(size_t height, size_t length)
 
 }
 
-void Map::setMap(QVector<QVector<bool> > map)
+void Map::setMap(QVector<QVector<Cell> > map)
 {
     _map.resize(map.size());
 
@@ -29,7 +29,8 @@ void Map::setMap(QVector<QVector<bool> > map)
     {
         for(int j(0); j < _map[i].size() ; j++)
         {
-            _map[i][j].setNextStatus( map[i][j] );
+            _map[i][j].setNextStatus( map[i][j].isLife() );
+            _map[i][j].setVirus(map[i][j].isVirus());
             _map[i][j].activateNextStatus();
         }
     }
@@ -46,25 +47,10 @@ void Map::activateNextStatusMap()
     }
 }
 
-QVector<QVector < bool> > Map::getMapForPrint()
+QVector<QVector<Cell> > Map::getMapForPrint()
 {
-    QVector < QVector < bool > > map(_map.size());
-    for(int i(0); i < map.size() ; i++ )
-    {
-        map[i].push_back(false);
-        for(int j(1); j < _map[i].size(); j++ )
-            map[i].push_back(false);
-    }
 
-    for( int i(0); i <_map.size() ; i++)
-    {
-        for(int j(0); j < _map[i].size() ; j++)
-        {
-            map[i][j] = _map[i][j].isLife();
-        }
-    }
-
-    return map;
+    return _map;
 }
 
 void Map::buildNextStatus()
@@ -74,6 +60,8 @@ void Map::buildNextStatus()
         for(int j(0); j < _map[i].size() ; j++)
         {
             _buildNextStatus(i, j);
+            if(_map[i][j].isVirus() && _map[i][j].isLife())
+                spreadDisease(i, j);
         }
     }
 }
@@ -94,9 +82,32 @@ bool Map::isNotEnd()
 }
 
 
+
 //
 //---------------приватные методы----------
 //
+
+void Map::_spreadDisease(int x, int y)
+{
+    if( ( x > -1 ) && (x < _map.size()) && (y > -1 ) && ( y < _map[x].size()) )
+    {
+        //if(_map[x][y].isLife())
+            _map[x][y].setVirus(true);
+    }
+}
+
+void Map::spreadDisease(int x, int y)
+{
+    _spreadDisease( x - 1 , y - 1 );
+    _spreadDisease( x - 1 , y     );
+    _spreadDisease( x - 1 , y + 1 );
+    _spreadDisease( x     , y + 1 );
+    _spreadDisease( x + 1 , y + 1 );
+    _spreadDisease( x + 1 , y     );
+    _spreadDisease( x + 1 , y - 1 );
+    _spreadDisease( x     , y - 1 );
+}
+
 
 
 int Map::_checkingForLife(int x, int y)

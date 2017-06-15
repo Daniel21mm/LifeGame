@@ -10,6 +10,7 @@
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QLabel>
+#include <QRadioButton>
 
 
 class MainWindow : public QWidget
@@ -26,7 +27,7 @@ private slots:
     void                validityChecking();
     void                startGame();
     void                gameOver();
-
+    void                drawStatus(bool status);
 
 private:
     //окно вывода приложения
@@ -35,14 +36,11 @@ private:
     QPushButton*        startTimer;
     QPushButton*        stopTimer;
     QTimer*             timer;
+    QRadioButton*       draw;
     QGridLayout*        mainLayout;
 
 
     // окно старта, сюда же будем позвращаемся при перезапуске
-    QLabel*             lengthKey;
-    QLineEdit*          lengthValue;
-    QLabel*             widthKey;
-    QLineEdit*          widthValue;
     QLabel*             timeKey;
     QLineEdit*          timeValue;
     QPushButton*        setValue;

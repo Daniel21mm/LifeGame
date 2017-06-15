@@ -1,19 +1,19 @@
 #include "cell.h"
 
 Cell::Cell()
-    :_is_life(false),_next_status(false)
+    :_is_life(false),_next_status(false),_is_virus(false)
 {
 
 }
 
 Cell::Cell(bool is_life)
-    :_is_life(is_life),_next_status(false)
+    :_is_life(is_life),_next_status(false),_is_virus(false)
 {
 
 }
 
 Cell::Cell(const Cell &cell)
-    :_is_life(cell._is_life),_next_status(cell._next_status)
+    :_is_life(cell._is_life),_next_status(cell._next_status),_is_virus(cell._is_virus)
 {
 
 }
@@ -21,6 +21,16 @@ Cell::Cell(const Cell &cell)
 bool Cell::isLife()
 {
     return _is_life;
+}
+
+bool Cell::isVirus()
+{
+    return _is_virus;
+}
+
+void Cell::setVirus(bool virus)
+{
+    _is_virus = virus;
 }
 
 bool Cell::isChangeStatus()
@@ -31,6 +41,10 @@ bool Cell::isChangeStatus()
 void Cell::activateNextStatus()
 {
     _is_life = _next_status;
+
+    if(!_next_status)
+        _is_virus = false;
+
     _next_status = false;
 }
 
@@ -49,6 +63,7 @@ Cell& Cell::operator=(const Cell &cell)
     }
     _is_life = cell._is_life;
     _next_status = cell._next_status;
+    _is_virus = cell._is_virus;
     return *this;
 
 }
